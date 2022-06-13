@@ -15,6 +15,14 @@ class BaseAuthorSerializer(serializers.ModelSerializer):
             'dob'
         ]
 
+class BaseCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = [
+            'name',
+            'description',
+        ]
+
 class ProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = Program
@@ -33,7 +41,7 @@ class PriceSerializer(serializers.ModelSerializer):
 class BookSerializer(serializers.ModelSerializer):
     # def validate_data(self):
     author = BaseAuthorSerializer(read_only = True)
-        
+    categories = BaseCategorySerializer(read_only = True, many=True)
     class Meta:
         model = Book
         fields = [

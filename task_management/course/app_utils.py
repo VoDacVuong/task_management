@@ -1,3 +1,4 @@
+from turtle import pd
 from unicodedata import name
 from .models import Book, Author, Category
 from utils import messages, exceptions
@@ -18,10 +19,17 @@ def get_author(uid):
 
 def get_category(pk):
     try:
-        category = Category.objects.filter(pk=pk)
+        category = Category.objects.filter(pk=pk).first()
         return category
     except Exception as exception:
         raise exceptions.InvalidArgumentException(message=messages.CATEGORY_NOT_FOUND)
+
+def update_category_by_dict(category, update_category_dict = {}):
+    for key, value in update_category_dict.items():
+        setattr(category, key, value)
+
+    category.save()
+    return category
 
 def create_book_by_dict(create_book_dict = {}):
     book = Book.objects.create(
@@ -30,7 +38,9 @@ def create_book_by_dict(create_book_dict = {}):
         author = get_author(uid = create_book_dict.get('author')),
         # categories = get_category(pk = create_book_dict.get('categories'))
     )
-    book.categories.set(get_category(pk = create_book_dict.get('categories')))
+    
+    book.categories.add(get_category(pk = create_book_dict.get('categories')))
+    # import pdb;pdb.set_trace()
     return book
 
 def create_category_by_dict(create_category_dict = {}):

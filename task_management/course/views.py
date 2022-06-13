@@ -1,9 +1,12 @@
 from datetime import datetime
 from turtle import pd
 from urllib import response
-from .models import Book, Program, Price
+
+import pkg_resources
+from .models import Book, Category, Program, Price
 from rest_framework.decorators import action
 from .serializers import ProgramSerializer, PriceSerializer, BookSerializer, CategorySerializer
+from .filters import BookFilter
 from utils.views import AbstractView, query_debugger, paginate_data
 from utils import exceptions, messages
 from course import app_utils as course_utils
@@ -45,6 +48,36 @@ class CategoryAPI(AbstractView):
         except Exception as exception:
             return self.exception_handler.handle(exception)
 
+    @query_debugger
+    @action(methods=['POST'], url_path='matrix', detail=False)
+    def matrix_categories(self, request):
+        try:
+            categories = Category.objects.all()
+            response_data = CategorySerializer(categories, many = True).data
+            response_by_page = paginate_data(request, response_data)
+            return self.response_handler.handle(response_by_page)
+        except Exception as exception:
+            return self.exception_handler.handle(exception)
+
+    @query_debugger
+    @action(methods=['POST'], url_path='update', detail=False)
+    def update_category(self, request):
+        try:
+            data = self.request_handler.handle(request)
+            pk_category = data.get_body_value('pk')
+            category = course_utils.get_category(pk=pk_category)
+            update_category_dict = {
+                k : data.get_body_value(k, None) for k in self.category_fields if data.get_body_value is not None
+            }
+            category_new = course_utils.update_category_by_dict(
+                category=category,
+                update_category_dict = update_category_dict
+            )
+            response_data = CategorySerializer(category_new).data
+            return self.response_handler.handle(response_data)
+        except Exception as exception:
+            return self.exception_handler.handle(exception)
+
 class BookAPI(AbstractView):
 
     book_fields = [
@@ -58,8 +91,16 @@ class BookAPI(AbstractView):
     @action(methods=['POST'], url_path='matrix', detail=False)
     def matrix_book(self, request):
         try:
+            data = self.request_handler.handle(request)
+            data_dict = dict()
+
+            for field in BookFilter.base_filters:
+                value = data.get_body_value(key=field)
+                data_dict.setdefault(field, value)
+
             books = Book.objects.select_related('author')
-            response_data = BookSerializer(books, many = True).data
+            filtered_book = BookFilter(data_dict, books).qs
+            response_data = BookSerializer(filtered_book, many = True).data
             response_by_page = paginate_data(request, response_data)
             return self.response_handler.handle(data=response_by_page)
             
