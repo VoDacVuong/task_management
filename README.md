@@ -2,8 +2,6 @@
 
 Task management api
 
-
-
 ```
 
 ## Create database
