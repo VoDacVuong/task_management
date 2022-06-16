@@ -98,7 +98,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         # 'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-        # 'utils.authentication.JWTAuthentication'
+        'utils.authentication.JWTAuthentication'
     ],
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',

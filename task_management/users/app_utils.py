@@ -4,7 +4,8 @@ from utils import exceptions, messages
 from rest_framework.response import Response
 import jwt, datetime
 from django.conf import settings
-
+from oauth.models import UserDeviceToken
+from oauth import app_utils as oauth_utils
 
 def authentication_(request, email, password):
     user = authenticate(request = request, email = email, password = password)
@@ -27,6 +28,16 @@ def set_cookie_(user):
         'message': 'Success',
         'current_time': datetime.datetime.now()
     }
+    
+    # deactive old token
+    oauth_utils.deactivate_token(user)
+
+    UserDeviceToken.objects.create(
+        user = user,
+        token = token,
+        active = True
+    )
+
     return response
 
 def check_cookie(request):
