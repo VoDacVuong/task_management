@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'users',
     'utils',
     'course',
+    'oauth',
 ]
 
 MIDDLEWARE = [
@@ -95,7 +96,7 @@ REST_FRAMEWORK = {
     # or allow read-only access for unauthenticated users.
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.BasicAuthentication',
-        # 'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
         # 'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
         # 'utils.authentication.JWTAuthentication'
     ],
